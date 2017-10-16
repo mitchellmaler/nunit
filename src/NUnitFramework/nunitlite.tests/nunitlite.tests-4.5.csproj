@@ -71,6 +71,7 @@
     <Compile Include="CommandLineTests.cs" />
     <Compile Include="CreateTestFilterTests.cs" />
     <Compile Include="DefaultOptionsProviderTests.cs" />
+    <Compile Include="EffiencyTests.cs" />
     <Compile Include="ExtendedTextWrapperTests.cs" />
     <Compile Include="MakeRunSettingsTests.cs" />
     <Compile Include="NUnit2XmlOutputWriterTests.cs" />

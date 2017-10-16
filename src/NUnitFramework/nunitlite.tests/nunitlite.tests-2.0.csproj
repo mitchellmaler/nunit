@@ -66,6 +66,7 @@
       <Link>TestUtilities\TestFile.cs</Link>
     </Compile>
     <Compile Include="DefaultOptionsProviderTests.cs" />
+    <Compile Include="EffiencyTests.cs" />
     <Compile Include="ExtendedTextWrapperTests.cs" />
     <Compile Include="OutputSpecificationTests.cs" />
     <Compile Include="Program.cs" />
