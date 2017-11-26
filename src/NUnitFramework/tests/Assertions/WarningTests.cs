@@ -174,6 +174,27 @@ namespace NUnit.Framework.Assertions
             }
         }
 
+        [TestCase(typeof(WarningInSetUpPasses), "WarningPassesInTest", 2, 0)]
+        [TestCase(typeof(WarningInSetUpPasses), "WarningFailsInTest", 2, 1)]
+        [TestCase(typeof(WarningInSetUpPasses), "ThreeWarningsFailInTest", 4, 3)]
+        [TestCase(typeof(WarningInSetUpFails), "WarningPassesInTest", 2, 1)]
+        [TestCase(typeof(WarningInSetUpFails), "WarningFailsInTest", 2, 2)]
+        [TestCase(typeof(WarningInSetUpFails), "ThreeWarningsFailInTest", 4, 4)]
+        [TestCase(typeof(WarningInTearDownPasses), "WarningPassesInTest", 2, 0)]
+        [TestCase(typeof(WarningInTearDownPasses), "WarningFailsInTest", 2, 1)]
+        [TestCase(typeof(WarningInTearDownPasses), "ThreeWarningsFailInTest", 4, 3)]
+        [TestCase(typeof(WarningInTearDownFails), "WarningPassesInTest", 2, 1, Ignore = "TO FIX: Passes in spite of warning in TearDown. Should it be an error?")]
+        [TestCase(typeof(WarningInTearDownFails), "WarningFailsInTest", 2, 2, Ignore = "TO FIX: Should this be an error?")]
+        [TestCase(typeof(WarningInTearDownFails), "ThreeWarningsFailInTest", 4, 4, Ignore = "TO FIX: Should this be an error?")]
+        public void WarningUsedInSetUpOrTearDown(Type fixtureType, string methodName, int expectedAsserts, int expectedWarnings)
+        {
+            var result = TestBuilder.RunTestCase(fixtureType, methodName);
+
+            Assert.That(result.ResultState, Is.EqualTo(expectedWarnings == 0 ? ResultState.Success : ResultState.Warning));
+            Assert.That(result.AssertCount, Is.EqualTo(expectedAsserts), "Incorrect AssertCount");
+            Assert.That(result.AssertionResults.Count, Is.EqualTo(expectedWarnings), $"There should be {expectedWarnings} AssertionResults");
+        }
+
 #if !NET_2_0
         [Test]
         public void PassingAssertion_DoesNotCallExceptionStringFunc()
