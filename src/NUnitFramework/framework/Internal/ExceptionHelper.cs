@@ -180,5 +180,23 @@ namespace NUnit.Framework.Internal
 
             return result;
         }
+        
+        /// <summary>
+        /// Gets the type of the exception as string. If no exception
+        /// is provided, returns "Unable to get exception type".
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <returns>A string representation of the exception type.</returns>
+        public static string GetExceptionType(Exception exception)
+        {
+            try 
+            {
+                return exception.GetType().ToString();
+            }
+            catch (Exception)
+            {
+                return "Unable to get exception type";
+            }
+        }
     }
 }

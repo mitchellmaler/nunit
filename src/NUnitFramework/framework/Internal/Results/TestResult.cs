@@ -77,6 +77,7 @@ namespace NUnit.Framework.Internal
         private ResultState _resultState;
         private string _message;
         private string _stackTrace;
+        private string _exceptionType;
 
         private readonly List<AssertionResult> _assertionResults = new List<AssertionResult>();
         private readonly List<TestAttachment> _testAttachments = new List<TestAttachment>();
@@ -250,6 +251,35 @@ namespace NUnit.Framework.Internal
             private set
             {
                 _stackTrace = value;
+            }
+        }
+        
+        /// <summary>
+        /// Gets any exception type associated with an
+        /// error or failure.
+        /// </summary>
+        public virtual string ExceptionType
+        {
+            get
+            {
+#if PARALLEL
+                RwLock.EnterReadLock();
+#endif
+                try
+                {
+                    return _exceptionType;
+                }
+                finally
+                {
+#if PARALLEL
+                    RwLock.ExitReadLock();
+#endif
+                }
+            }
+
+            private set
+            {
+                _exceptionType = value;
             }
         }
 
@@ -489,6 +519,34 @@ namespace NUnit.Framework.Internal
             }
         }
 
+
+        /// <summary>
+        /// Set the result of the test
+        /// </summary>
+        /// <param name="resultState">The ResultState to use in the result</param>
+        /// <param name="message">A message associated with the result state</param>
+        /// <param name="stackTrace">Stack trace giving the location of the command</param>
+        /// <param name="exceptionType">Type of exception that was thrown in the test execution</param>
+        public void SetResult(ResultState resultState, string message, string stackTrace, string exceptionType)
+        {
+#if PARALLEL
+            RwLock.EnterWriteLock();
+#endif
+            try
+            {
+                ResultState = resultState;
+                Message = message;
+                StackTrace = stackTrace;
+                ExceptionType = exceptionType;
+            }
+            finally
+            {
+#if PARALLEL
+                RwLock.ExitWriteLock();
+#endif
+            }
+        }
+
         /// <summary>
         /// Set the test result based on the type of exception thrown
         /// </summary>
@@ -523,7 +581,8 @@ namespace NUnit.Framework.Internal
             {
                 string message = ExceptionHelper.BuildMessage(ex);
                 string stackTrace = ExceptionHelper.BuildStackTrace(ex);
-                SetResult(ResultState.Error, message, stackTrace);
+                string exceptionType = ExceptionHelper.GetExceptionType(ex);
+                SetResult(ResultState.Error, message, stackTrace, exceptionType);
 
                 if (AssertionResults.Count > 0)
                 {
